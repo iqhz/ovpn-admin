@@ -8,9 +8,9 @@ nobind
 dev tun
 cipher AES-128-CBC
 key-direction 1
-#redirect-gateway def1
 tls-client
 remote-cert-tls server
+route 10.1.1.0 255.255.255.0
 # uncomment below lines for use with linux
 #script-security 2
 # if you use resolved

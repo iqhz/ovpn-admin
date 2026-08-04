@@ -9,6 +9,7 @@ services:
     command: /etc/openvpn/setup/configure.sh
     environment:
       - OVPN_ROLE=slave
+      - OVPN_PASSWD_AUTH=false
     cap_add:
       - NET_ADMIN
     ports:
@@ -20,6 +21,7 @@ services:
   ovpn-admin:
     build:
       context: .
+      dockerfile: Dockerfile.ovpn-admin
     image: ovpn-admin:local
     command: /app/ovpn-admin --debug --ovpn.network="172.16.100.0/22" --master.sync-token="TOKEN" --master.host="http://172.20.0.1:8080" --role="slave" --ovpn.server="127.0.0.1:7777:tcp" --ovpn.server="127.0.0.1:7778:tcp" --easyrsa.path="/mnt/easyrsa" --easyrsa.index-path="/mnt/easyrsa/pki/index.txt"
     environment:
