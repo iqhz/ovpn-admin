@@ -31,6 +31,11 @@ else
 fi
 easyrsa gen-crl
 
+# jangan NAT traffic ke subnet server sendiri (biar SSH bisa langsung)
+iptables -t nat -D POSTROUTING -s ${OVPN_SRV_NET}/${OVPN_SRV_MASK} -d 10.1.1.0/24 -j RETURN || true
+iptables -t nat -A POSTROUTING -s ${OVPN_SRV_NET}/${OVPN_SRV_MASK} -d 10.1.1.0/24 -j RETURN
+
+# NAT traffic ke subnet VPC lainnya (selain subnet server)
 iptables -t nat -D POSTROUTING -s ${OVPN_SRV_NET}/${OVPN_SRV_MASK} -d 10.0.0.0/16 -j MASQUERADE || true
 iptables -t nat -A POSTROUTING -s ${OVPN_SRV_NET}/${OVPN_SRV_MASK} -d 10.0.0.0/16 -j MASQUERADE
 
@@ -55,10 +60,6 @@ fi
 [ -f $EASY_RSA_LOC/pki/crl.pem ] && chmod 644 $EASY_RSA_LOC/pki/crl.pem
 
 mkdir -p /etc/openvpn/ccd
-
-# disable rp_filter agar traffic dari VPN bisa masuk ke server sendiri
-sysctl -w net.ipv4.conf.all.rp_filter=0
-sysctl -w net.ipv4.conf.tun0.rp_filter=0
 
 # allow SSH dari VPN network
 iptables -A INPUT -i tun0 -s ${OVPN_SRV_NET}/${OVPN_SRV_MASK} -p tcp --dport 22 -j ACCEPT
